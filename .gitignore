@@ -59,3 +59,15 @@ typings/
 
 # next.js build output
 .next
+
+# build output
+build
+
+# ignore folder
+.ignore
+
+test
+src/**.js
+.idea/*
+
+package-lock.json
