@@ -1,6 +1,6 @@
 {
   "name": "@goarthur/arthur-js",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Arthur's Client-side SDK",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -12,14 +12,16 @@
     "build": "run-s clean && run-p build:*",
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
-    "lint": "tslint --project . && prettier \"src/**/*.ts\" --list-different",
-    "lint:fix": "tslint --fix --project . && prettier \"src/**/*.ts\" --write",
+    "lint": "tslint --project .",
+    "lint:fix": "tslint --fix --project .",
     "test": "node scripts/test.js \".*\\.test\\.(js|jsx|ts|tsx)\"",
     "test:debug": "node --inspect-brk scripts/test.js --testPathPattern=\".*\\.test\\.(js|jsx|ts|tsx)\" --runInBand",
     "version": "standard-version",
-    "reset": "git clean -dfx && git reset --hard && npm i",
+    "reset": "git clean -dfx -e .ignore -e .env* && git reset --hard && yarn",
     "clean": "trash build test",
-    "preinstall": "node -e \"if(process.env.npm_execpath.indexOf('yarn') === -1) throw new Error('@goarthur/arthur-js must be installed with Yarn: https://yarnpkg.com/')\""
+    "preinstall": "node -e \"if(process.env.npm_execpath.indexOf('yarn') === -1) throw new Error('@goarthur/arthur-js must be installed with Yarn: https://yarnpkg.com/')\"",
+    "prepublishOnly": "cross-env CI=true run-s reset test lint version",
+    "prepare": "run-s clean build"
   },
   "engines": {
     "node": ">=10"
@@ -38,6 +40,7 @@
     "babel-jest": "^24.9.0",
     "cross-env": "^6.0.3",
     "cz-conventional-changelog": "^3.0.2",
+    "husky": "^3.0.8",
     "jest": "^24.9.0",
     "jest-environment-jsdom-fourteen": "^0.1.0",
     "npm-run-all": "^4.1.5",
@@ -47,6 +50,12 @@
     "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.5.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "git clean -dfx -e .ignore -e .env* -e node_modules && ./node_modules/.bin/cross-env CI=true yarn run test",
+      "pre-push": "git clean -dfx -e .ignore -e .env* -e node_modules && ./node_modules/.bin/cross-env CI=true yarn run test"
+    }
   },
   "jest": {
     "collectCoverageFrom": [

@@ -15,14 +15,16 @@ const ARTHUR_CLIENT_CONTEXT_SCHEMA = yup.object().shape({
   tenant: yup
     .string()
     .required()
-    .test('isuuidv5', 'tenant must be a valid UUIDv5', function(value) {
+    .test('isuuidv5', 'tenant must be a valid UUIDv5', (
+      value
+    ): boolean => {
       return REGEX_UUID_V5.test(value);
     }),
   uri: yup.string().url(),
   headers: yup.object().required(),
   fetch: yup
     .mixed()
-    .test('isFunction', 'fetch must be a function', function(value) {
+    .test('isFunction', 'fetch must be a function', (value): boolean => {
       return value === undefined || typeof value === 'function';
     })
 });
@@ -44,7 +46,7 @@ export default class ArthurClient {
   }
 
   public async query({ query, context }: { readonly query: any, readonly context: ArthurClientContext}): Promise<any> {
-    var currentContext = this.context;
+    let currentContext = this.context;
     if (context && ARTHUR_CLIENT_CONTEXT_SCHEMA.validateSync(context)) {
       currentContext = context;
     }
