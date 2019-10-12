@@ -15,6 +15,7 @@
     "lint": "tslint --project . && prettier \"src/**/*.ts\" --list-different",
     "lint:fix": "tslint --fix --project . && prettier \"src/**/*.ts\" --write",
     "test": "node scripts/test.js \".*\\.test\\.(js|jsx|ts|tsx)\"",
+    "test:debug": "node --inspect-brk scripts/test.js --testPathPattern=\".*\\.test\\.(js|jsx|ts|tsx)\" --runInBand",
     "version": "standard-version",
     "reset": "git clean -dfx && git reset --hard && npm i",
     "clean": "trash build test",
@@ -24,7 +25,8 @@
     "node": ">=10"
   },
   "dependencies": {
-    "deepmerge": "^4.1.1"
+    "@types/yup": "^0.26.24",
+    "yup": "^0.27.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",
