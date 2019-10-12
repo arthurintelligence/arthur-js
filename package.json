@@ -19,9 +19,7 @@
     "version": "standard-version",
     "reset": "git clean -dfx -e .ignore -e .env* && git reset --hard && yarn",
     "clean": "trash build test",
-    "preinstall": "node -e \"if(process.env.npm_execpath.indexOf('yarn') === -1) throw new Error('@goarthur/arthur-js must be installed with Yarn: https://yarnpkg.com/')\"",
-    "prepublishOnly": "cross-env CI=true run-s reset test lint version",
-    "prepare": "run-s clean build"
+    "prepublishOnly": "cross-env CI=true run-s reset test lint version clean build"
   },
   "engines": {
     "node": ">=10"
