@@ -1,5 +1,5 @@
 import 'jest';
-import ArthurClient, { ArthurClientContext } from './ArthurClient';
+import { ArthurClient, ArthurClientContext } from './ArthurClient';
 
 function testInvalidContext(fn): void {
   test('given invalid context, should throw error', () => {

@@ -29,7 +29,7 @@ const ARTHUR_CLIENT_CONTEXT_SCHEMA = yup.object().shape({
     })
 });
 
-export default class ArthurClient {
+export class ArthurClient {
 
   public context: ArthurClientContext;
 
