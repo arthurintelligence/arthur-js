@@ -1,5 +1,9 @@
 import 'jest';
+import { FetchMock } from 'jest-fetch-mock';
+import qs from 'qs';
 import { ArthurClient, ArthurClientContext } from './ArthurClient';
+
+const fetchMock = fetch as FetchMock;
 
 function testInvalidContext(fn): void {
   test('given invalid context, should throw error', () => {
@@ -73,6 +77,7 @@ describe('constructor', () => {
     const client = new ArthurClient(options);
 
     // assert
+    // @ts-ignore
     expect(client.context).toEqual(options);
   });
 })
@@ -99,11 +104,134 @@ describe('setContext', () => {
     client.setContext(context);
 
     // assert
+    // @ts-ignore
     expect(client.context).toEqual(context);
   });
 });
 
-// TODO: test query
+describe('query', () => {
+  beforeEach(() => {
+    fetchMock.resetMocks();
+  })
 
+  test('should sanitize headers by encoding them into URIComponents', async () => {
+    // arrange
+    const options = {
+      tenant: 'a6edc906-2f9f-5fb2-a373-efac406f0ef2',
+      headers: {
+        'header1': 'hello world',
+        'header2': 'hello&world%',
+      },
+    };
+    const jsonMock = jest.fn(() => ({}))
+    fetchMock.mockResponse(() => Promise.resolve({ 
+      ok: true, 
+      status: 200, 
+      statusText: 'OK', 
+      json: jsonMock, 
+      body: '{}' 
+    }));
+    // act
+    const client = new ArthurClient(options);
+    await client.query({ query: { startDate: 1, endDate: 2 } });
+    // assert
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][1].headers).toEqual({
+      'arthur-tenant-key': 'a6edc906-2f9f-5fb2-a373-efac406f0ef2',
+      'header1': 'hello%20world',
+      'header2': 'hello%26world%25',
+    });
+  });
+
+  test('should add the tenant key as a the `arthur-tenant-key` header', async () => {
+    // arrange
+    const options = {
+      tenant: 'a6edc906-2f9f-5fb2-a373-efac406f0ef2',
+      headers: {
+      },
+    };
+    const jsonMock = jest.fn(() => ({}))
+    fetchMock.mockResponse(() => Promise.resolve({ 
+      ok: true, 
+      status: 200, 
+      statusText: 'OK', 
+      json: jsonMock, 
+      body: '{}' 
+    }));
+    // act
+    const client = new ArthurClient(options);
+    await client.query({ query: { startDate: 1, endDate: 2 } });
+    // assert
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][1].headers).toEqual({
+      'arthur-tenant-key': 'a6edc906-2f9f-5fb2-a373-efac406f0ef2',
+    });
+  });
+
+  test('should sanitize params and encode them properly, including arrays', async () => {
+    // arrange
+    const options = {
+      tenant: 'a6edc906-2f9f-5fb2-a373-efac406f0ef2',
+      headers: {},
+      params: {
+        'param1': 'hello world',
+        'param2': 'hello&world%',
+        'param3': ['a', 'b', 'c'],
+        'param4': true,
+        'param5': 100,
+        'param6': { value: 1 },
+      },
+    };
+    const jsonMock = jest.fn(() => ({}))
+    fetchMock.mockResponse(() => Promise.resolve({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      json: jsonMock,
+      body: '{}'
+    }));
+    // act
+    const client = new ArthurClient(options);
+    await client.query({ query: { startDate: 1, endDate: 2 } });
+    // assert
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(qs.parse(fetchMock.mock.calls[0][0].match(/\?(.*)/)[1])).toEqual({
+      query: { startDate: '1', endDate: '2' },
+      param1: 'hello world',
+      param2: 'hello&world%',
+      param3: ['a', 'b', 'c'],
+      param4: 'true',
+      param5: '100',
+      param6: { value: '1' },
+    });
+  });
+
+  test('should override the params.query with the passed query argument', async () => {
+    // arrange
+    const options = {
+      tenant: 'a6edc906-2f9f-5fb2-a373-efac406f0ef2',
+      headers: {},
+      params: {
+        'query': { value: 1 },
+      },
+    };
+    const jsonMock = jest.fn(() => ({}))
+    fetchMock.mockResponse(() => Promise.resolve({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      json: jsonMock,
+      body: '{}'
+    }));
+    // act
+    const client = new ArthurClient(options);
+    await client.query({ query: { startDate: 1, endDate: 2 } });
+    // assert
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(qs.parse(fetchMock.mock.calls[0][0].match(/\?(.*)/)[1])).toEqual({
+      query: { startDate: '1', endDate: '2' },
+    });
+  })
+})
 
 
