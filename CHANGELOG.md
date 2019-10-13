@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/arthurintelligence/arthur-js/compare/v0.1.0...v0.2.0) (2019-10-13)
+
+
+### Features
+
+* **arthurclient:** moved ArthurClient.default to ArthurClient.ArthurClient for easier consumption ([81dbaf9](https://github.com/arthurintelligence/arthur-js/commit/81dbaf9))
+
+
+
 ## 0.1.0 (2019-10-12)
 
 
